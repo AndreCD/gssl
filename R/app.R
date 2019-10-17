@@ -4,83 +4,74 @@ library(dplyr)
 library(ggplot2)
 library(factoextra)
 
+#if(input$disp == "head") {
+#  return(head(df))
+#}
+#else {
+#  return(df)
+#}
+
 #write.csv(spectra100, 'spectra.csv')
 #drop_create('drop_test') #create folder
 #drop_upload('spectra.csv', path = "drop_test") #upload
 #drop_delete('drop_test/spectra.csv') 
 
-ui = fluidPage(titlePanel("submitButton example"),
-               fileInput("table", "Choose CSV File",accept = c("text/csv", "text/comma-separated-values",".csv")),
-               checkboxInput("header", "Header", TRUE),
-               radioButtons("sep","Separator", choices=c(Comma=",", semicolon=";",Tab="\t"), selected = ";"),
-               actionButton("Submit", label = "Go!"),
-               plotOutput("distPlot", width = 400, height = 300), verbatimTextOutput("text")
-               )
-                 
-server <- function(input, output) {
-  eventReactive(input$Submit,{
-    if(is.null(input$Submit)){
-      return()
-      }
-    })
-  df <- eventReactive(input$Submit, {
-    plot(input$table)
-  })
-  
-  output$distPlot <- renderPlot({
-   df
-    })
-}
 
+
+
+####################################
+ui = fluidPage(
+  titlePanel("GSSL"),
+   sidebarLayout(
+     sidebarPanel(
+          fileInput("Inputfile", "Choose CSV File",accept = c("text/csv", "text/comma-separated-values",".csv")),
+          checkboxInput("header", "Header", TRUE),
+          radioButtons("sep","Separator", choices=c(Comma=",", semicolon=";",Tab="\t"), selected = ","),
+          actionButton("act", label = "Input Data")
+                 ),
+        mainPanel( 
+          plotOutput("plot")
+                 )
+                )
+   )
+
+   
+
+  server <- function(input, output) {
+    randomVals <- eventReactive(input$act, {
+      req(input$Inputfile)
+      
+      df <- read.csv(input$Inputfile$datapath,
+                     header = input$header,
+                     sep = input$sep)
+    })
+    output$plot <- renderPlot({
+      inputdata <- randomVals()
+      input.pca <- prcomp(inputdata, scale = TRUE)
+            pca <- fviz_pca_ind(res.pca, label="all", title = "")
+            pca
+    })
+  }
+  # Run the app ----
 shinyApp(ui = ui, server = server)
 
+  input.pca <- prcomp(test, scale = TRUE)
+  p <- fviz_pca_ind(input.pca, label="all", title = "", repel = F,  col.ind = "blue")
 
+  gssl.pca <- prcomp(spec[,c(15,length(spec))], scale = TRUE)
+         fviz_pca_ind(input.pca, label="all", title = "", repel = F,  col.ind = "blue") 
+    g <- fviz_pca_ind(gssl.pca, label="", title = "", repel = F,  col.ind = "black") 
+  g$data$x
+  plot(x = g$data$x, y = g$data$y, type="p",col="black", pch = 20)
+  par(new=TRUE)
+  plot(x = p$data$x, y = p$data$y, type="p",col="blue", pch = 20)
 
-
-
-
-
-
-server = function(input, output) {
   filesInfo <- drop_dir("drop_test")
   filePaths <- filesInfo$path_lower[1]
   data      <- lapply(filePaths, drop_read_csv, stringsAsFactors = FALSE)
-  spec    <- do.call(rbind, data)
+  spec      <- do.call(rbind, data)
   res.pca <- prcomp(spec[,c(15,length(spec))], scale = TRUE)
   groups  <- as.factor(spec$WRB)
-  pca <-fviz_pca_ind(res.pca, label="none", habillage= groups, title = "")
+  pca <-fviz_pca_ind(res.pca, label="none", title = "")
+  pca
   
-  output$plot1 <- renderPlot({
-    pca
-  })
-  
-
-}
-
-shinyApp(ui = ui, server = server)
-
-
-library(shiny)
-
-ui <- fluidPage(
-  actionButton("go", "Go"),
-  fileInput("n", "Choose CSV File",accept = c("text/csv", "text/comma-separated-values",".csv")),
-  plotOutput("plot")
-)
-
-server <- function(input, output) {
-  
-  # builds a reactive expression that only invalidates 
-  # when the value of input$goButton becomes out of date 
-  # (i.e., when the button is pressed)
-  ntext <- eventReactive(input$go, {
-    hist(input$n)
-    
-  })
-  
-  output$plot <- renderPlot({
-    ntext()
-  })
-}
-
-shinyApp(ui, server)
