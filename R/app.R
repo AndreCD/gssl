@@ -35,8 +35,6 @@ ui = fluidPage(
                 )
    )
 
-   
-
   server <- function(input, output) {
     randomVals <- eventReactive(input$act, {
       req(input$Inputfile)
