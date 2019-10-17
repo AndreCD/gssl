@@ -29,8 +29,9 @@ ui = fluidPage(
           radioButtons("sep","Separator", choices=c(Comma=",", semicolon=";",Tab="\t"), selected = ","),
           actionButton("act", label = "Input Data")
                  ),
-        mainPanel( 
-          plotOutput("plot")
+        mainPanel(h3("Results"),
+                  plotOutput("plot"),
+                  plotOutput("plot2")
                  )
                 )
    )
@@ -43,33 +44,40 @@ ui = fluidPage(
                      header = input$header,
                      sep = input$sep)
     })
+    
     output$plot <- renderPlot({
-      inputdata <- randomVals()
-      input.pca <- prcomp(inputdata, scale = TRUE)
-            pca <- fviz_pca_ind(res.pca, label="all", title = "")
-            pca
+                    inputdata <- randomVals()
+                    #pca input
+                inputdata.pca <- prcomp(inputdata, scale = F)
+             inputdata.pca.gg <- as.data.frame(inputdata.pca$x[,c(1:2)])
+                    # pca GSSL
+                    filesInfo <- drop_dir("drop_test")
+                    filePaths <- filesInfo$path_lower[1]
+                        gssl2 <- lapply(filePaths, drop_read_csv, stringsAsFactors = FALSE)
+                         gssl <- do.call(rbind, gssl2)
+                     gssl.pca <- prcomp(gssl[,c(15,length(gssl))], scale = T)
+                  gssl.pca.gg <- as.data.frame(gssl.pca$x[,c(1:2)])
+              
+                            g <- ggplot() + 
+                                  geom_point(data=gssl.pca.gg, aes(x=PC1, y=PC2), color='black') + 
+                                  geom_point(data=inputdata.pca.gg, aes(x=PC1, y=PC2), color='red', cex=2, pch = 19) +
+                                  geom_text(data=inputdata.pca.gg, aes(x=PC1, y=PC2, label = rownames(inputdata.pca.gg), 
+                                                                       colour = "red", hjust = .5, vjust = -.5)) +
+                                  theme(legend.position = "none")
+                            g
+    })
+    
+    output$plot2 <- renderPlot({
+                     inputdata <- randomVals()
+                     # Histogram with density plot
+                     h <- ggplot(inputdata, aes(x=inputdata[[1]])) + 
+                           geom_histogram(aes(y=..density..), colour="black", fill="white")+
+                           geom_density(alpha=.2, fill="#FF6666") 
+                     h
+  
     })
   }
-  # Run the app ----
+# Run the app ----
 shinyApp(ui = ui, server = server)
-
-  input.pca <- prcomp(test, scale = TRUE)
-  p <- fviz_pca_ind(input.pca, label="all", title = "", repel = F,  col.ind = "blue")
-
-  gssl.pca <- prcomp(spec[,c(15,length(spec))], scale = TRUE)
-         fviz_pca_ind(input.pca, label="all", title = "", repel = F,  col.ind = "blue") 
-    g <- fviz_pca_ind(gssl.pca, label="", title = "", repel = F,  col.ind = "black") 
-  g$data$x
-  plot(x = g$data$x, y = g$data$y, type="p",col="black", pch = 20)
-  par(new=TRUE)
-  plot(x = p$data$x, y = p$data$y, type="p",col="blue", pch = 20)
-
-  filesInfo <- drop_dir("drop_test")
-  filePaths <- filesInfo$path_lower[1]
-  data      <- lapply(filePaths, drop_read_csv, stringsAsFactors = FALSE)
-  spec      <- do.call(rbind, data)
-  res.pca <- prcomp(spec[,c(15,length(spec))], scale = TRUE)
-  groups  <- as.factor(spec$WRB)
-  pca <-fviz_pca_ind(res.pca, label="none", title = "")
-  pca
   
+##########################################################################
