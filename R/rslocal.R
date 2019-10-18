@@ -60,6 +60,7 @@
 #' #' }
 #' @export
 
+
 rslocal <- function(SL.x, SL.y, m.x, m.y, k, b, r, pls.tune=FALSE, pls.c=10, method="pls", allowParallel=FALSE) {
   
   # check inputs
@@ -231,3 +232,19 @@ rslocal <- function(SL.x, SL.y, m.x, m.y, k, b, r, pls.tune=FALSE, pls.c=10, met
   return(list(K.x = SL.x[K.idx,], K.y=SL.y[K.idx], K.idx=K.idx))
 
 }
+
+
+SL.x <- data.frame(gssl[,c(15:length(gssl))]) #spectra
+SL.y <- as.matrix(gssl[6]) # clay
+m.x  <- data.frame(test[,c(19:2169)]) # spectra
+m.y  <- as.matrix(test[4]) # clay
+k <- 100
+b <- 20
+r <- 0.1
+
+#rslocaldata <- rslocal(SL.x, SL.y, m.x, m.y, k, b, r, method = "pls", pls.tune = FALSE, pls.c = 10, allowParallel = FALSE)
+
+#rslocal.selected <- cbind(variable = rslocaldata$K.y, rslocaldata$K.x) 
+
+
+

@@ -31,7 +31,6 @@ ui = fluidPage(
                  ),
         mainPanel(h3("Results"),
                   plotOutput("plot"),
-                  plotOutput("plot2")
                  )
                 )
    )
@@ -47,8 +46,9 @@ ui = fluidPage(
     
     output$plot <- renderPlot({
                     inputdata <- randomVals()
+            inputdata.spectra <- inputdata[-1]
                     #pca input
-                inputdata.pca <- prcomp(inputdata, scale = F)
+                inputdata.pca <- prcomp(inputdata.spectra, scale = F)
              inputdata.pca.gg <- as.data.frame(inputdata.pca$x[,c(1:2)])
                     # pca GSSL
                     filesInfo <- drop_dir("drop_test")
@@ -66,18 +66,10 @@ ui = fluidPage(
                                   theme(legend.position = "none")
                             g
     })
-    
-    output$plot2 <- renderPlot({
-                     inputdata <- randomVals()
-                     # Histogram with density plot
-                     h <- ggplot(inputdata, aes(x=inputdata[[1]])) + 
-                           geom_histogram(aes(y=..density..), colour="black", fill="white")+
-                           geom_density(alpha=.2, fill="#FF6666") 
-                     h
-  
-    })
   }
 # Run the app ----
 shinyApp(ui = ui, server = server)
   
 ##########################################################################
+
+
