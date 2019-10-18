@@ -24,16 +24,19 @@ ui = fluidPage(
   titlePanel("GSSL"),
    sidebarLayout(
      sidebarPanel(
-          fileInput("Inputfile", "Choose CSV File",accept = c("text/csv", "text/comma-separated-values",".csv")),
-          checkboxInput("header", "Header", TRUE),
-          radioButtons("sep","Separator", choices=c(Comma=",", semicolon=";",Tab="\t"), selected = ","),
-          actionButton("act", label = "Input Data")
+       fileInput("Inputfile", "Choose CSV File",accept = c("text/csv", "text/comma-separated-values",".csv")),
+       checkboxInput("header", "Header", TRUE),
+       radioButtons("sep","Separator", choices=c(Comma=",", semicolon=";",Tab="\t"), selected = ","),
+       actionButton("act", label = "Input Data")
                  ),
-        mainPanel(h3("Results"),
-                  plotOutput("plot"),
+     mainPanel(h3("Results"),
+       splitLayout(
+         plotOutput("plot"),
+         plotOutput("plot2")
+                  )
                  )
                 )
-   )
+               )
 
   server <- function(input, output) {
     randomVals <- eventReactive(input$act, {
@@ -71,5 +74,11 @@ ui = fluidPage(
 shinyApp(ui = ui, server = server)
   
 ##########################################################################
-
-
+  test.outl <- test[ , c(4,19:length(test))]
+  outliers <- boxplot(test.outl$Clay, plot=FALSE)$out
+  
+  print(outliers)
+  test.outl2 <-test.outl[-which(test.outl$Clay %in% outliers),]
+  boxplot(test.outl$Clay)
+  identify(rep(1, length(test.outl$Clay)), test.outl$Clay, labels = seq_along(test.outl$Clay))
+  
