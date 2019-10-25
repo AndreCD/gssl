@@ -27,12 +27,28 @@ rslocaldata <- rslocal(SL.x, SL.y, m.x, m.y, k, b, r, method = "pls", pls.tune =
 rslocal <- cbind(variable = rslocaldata$K.y, rslocaldata$K.x) 
 
 
-# gssl + 20 imported
+# Calibration with the gssl only - general calib
+
+# Calib with 20 importedonly - local 
+imported.data
+
+# gssl + 20 imported - spiking papers by Guerrero et al.
 gssl.imported <- rbind(imported.data, gssl)
+
+# gssl + 20 imported - extra weighting papers by Guerrero et al.
+
+
 # rs-local + 20 imported
 rslocal.imported <- rbind(imported.data, rslocal)
-# 20 imported 
-imported.data
+
+
+
+# spectral preprocessing
+
+
+
+
+
 
 
 #xgbTree
@@ -137,6 +153,7 @@ results.cubist.3
 rbind(results.xgbTree, results.pls, results.cubist)
 rbind(results.xgbTree.2, results.pls.2, results.cubist.2)
 rbind(results.xgbTree.3, results.pls.3, results.cubist.3)
+
 
 
 
