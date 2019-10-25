@@ -1,6 +1,5 @@
 
 
-
 #function
 plot1 <- function(inputdata) {
 inputdata <- randomVals() # create object for InputFile
@@ -31,9 +30,7 @@ return(g)
 
   
   source("./R/rslocal.R")
-  
-  
-  
+
   test.outl <- test[ , c(4,19:length(test))]
   outliers <- boxplot(test.outl$Clay, plot=FALSE)$out
   

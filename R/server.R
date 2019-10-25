@@ -31,7 +31,9 @@ function(input, output){
           theme(legend.position = "none")
     g
   })
+
+ # Renders a reactive plot that is suitable for assigning to an output slot.
+  output$table <- renderTable(ensemble_2$error[3:4])
+
 }
-
-
 
