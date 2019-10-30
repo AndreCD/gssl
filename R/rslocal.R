@@ -233,6 +233,3 @@ rslocal <- function(SL.x, SL.y, m.x, m.y, k, b, r, pls.tune=FALSE, pls.c=10, met
   return(list(K.x = SL.x[K.idx,], K.y=SL.y[K.idx], K.idx=K.idx))
 
 }
-
-
-

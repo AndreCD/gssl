@@ -4,48 +4,26 @@ library(dplyr)
 library(readr)
 library(mxnet)
 library(caret)
-## modelling RS-Local
-imported <- read.csv("C:/Users/280240B/Downloads/test.csv")
-imported.data <- cbind(variable=imported$C, imported[ ,c(19:2169)])
-
-filesInfo <- drop_dir("drop_test")
-filePaths <- filesInfo$path_lower[1] # select the first file from DropBox folder
-gssl2 <- lapply(filePaths, drop_read_csv, stringsAsFactors = FALSE)
-gssl2 <- do.call(rbind, gssl2)
-gssl <- cbind(variable=gssl2$Carb, gssl[ ,c(15:length(gssl2))])
-
-SL.x <- data.frame(gssl[,c(2:2152)]) #spectra
-SL.y <- as.matrix(gssl[1]) 
-m.x  <- data.frame(imported.data[,c(2:2152)]) # spectra
-m.y  <- as.matrix(imported.data[1]) 
-k <- 100
-b <- 40
-r <- 0.1
-setwd("~/GitHub/gssl-proj/R")
-source("rslocal.R")
-rslocaldata <- rslocal(SL.x, SL.y, m.x, m.y, k, b, r, method = "pls", pls.tune = FALSE, pls.c = 10, allowParallel = FALSE)
-rslocal <- cbind(variable = rslocaldata$K.y, rslocaldata$K.x) 
+## 
 
 
-# Calibration with the gssl only - general calib
+control <- caret::trainControl(method = "cv", savePredictions = TRUE, verboseIter = TRUE, number=5)
+tune.pls <- caret::train(variable~., data=prepro[[i]], method='pls', tuneLength= 5, trControl = control, verbose=TRUE)
+return(tune.pls)
+selected.pls.c <- tune.pls$bestTune$ncomp
+# calibrate the model
+mod <- pls::plsr(variable~., data=prepro[[i]], ncomp= tune.pls$bestTune$ncomp, method="simpls", validation="none") 
 
-# Calib with 20 importedonly - local 
-imported.data
+#cubist
+control <- trainControl(method="optimism_boot", number=10)
 
-# gssl + 20 imported - spiking papers by Guerrero et al.
-gssl.imported <- rbind(imported.data, gssl)
-
-# gssl + 20 imported - extra weighting papers by Guerrero et al.
-
-
-# rs-local + 20 imported
-rslocal.imported <- rbind(imported.data, rslocal)
-
-
-
-# spectral preprocessing
-
-
+fit.cubist <- train(variable~.,data=gssl.imported, 
+                    method="cubist",
+                    trControl=control)
+print(fit.cubist)
+beep(2)
+results.cubist <- getTrainPerf(fit.cubist)
+results.cubist
 
 
 
@@ -72,16 +50,6 @@ beep(2)
 results.pls <- getTrainPerf(fit.pls)
 results.pls
 
-#cubist
-control <- trainControl(method="optimism_boot", number=10)
-
-fit.cubist <- train(variable~.,data=gssl.imported, 
-                 method="cubist",
-                 trControl=control)
-print(fit.cubist)
-beep(2)
-results.cubist <- getTrainPerf(fit.cubist)
-results.cubist
 
 ###########################################################################
 #rs-local + 20 imported
@@ -119,6 +87,7 @@ results.cubist.2
 ###########################################################################
 #20 imported
 #xgbTree
+seed <- 1909983
 control <- trainControl(method="cv", number=5)
 
 fit.xgbTree.3 <- train(variable~.,data=imported.data, 
@@ -130,7 +99,7 @@ results.xgbTree.3
 
 #pls
 control <- trainControl(method="cv", number=5)
-
+set.seed(seed)
 fit.pls.3 <- train(variable~.,data=imported.data, 
                    method="pls",tuneLength = 10, 
                    trControl=control)
@@ -140,7 +109,7 @@ results.pls.3
 
 #cubist
 control <- trainControl(method="cv", number=5)
-
+set.seed(125)
 fit.cubist.3 <- train(variable~.,data=imported.data, 
                       method="cubist",
                       trControl=control)
@@ -156,11 +125,14 @@ rbind(results.xgbTree.3, results.pls.3, results.cubist.3)
 
 
 
+library(plsr)
+y <- as.matrix(log(gssl.imported[,1]))
+x <- as.matrix(gssl.imported[-1])
+mod <- pls::plsr(y~x, ncomp=20, method="simpls", validation="none") 
+sm_Stats(mod$fitted.values[,,20], y)
 
 
-
-
-
+##
 
 
 
