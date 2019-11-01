@@ -5,8 +5,7 @@ library(caret)
 
 
 #select the imposted spectra
-spectra <- rslocal 
-
+spectra <- rslocal
 
 # create list with all reflectance
 pp <- function(spectra, option){
@@ -47,13 +46,14 @@ prepro <- c("REFLECTANCE",
             "SGSMOOTH29") 
 
 # list of the model options
-models <- c("pls","cubist") 
+models <- c("pls") 
+
+
 # create null output
 output <- NULL
 
 # Selecting the best model and preprocessing
 set.seed(123)
-
 # option 1  
 for (p in prepro) { # 9 preprocessing
   for (m in models) { # 2 models
@@ -87,15 +87,48 @@ model.pp <- foreach(k = 1:nrow(alloptions), .combine = rbind) %dopar% {
   m <- as.character(alloptions[k, ]$model)
   # check 'invisible'
   pp.s <- pp(spectra = spectra, option = prepro)
-  control  <- caret::trainControl(method = "cv", savePredictions = TRUE, verboseIter = TRUE, number=10, allowParallel = T)
-  tune.pls <- caret::train(y=pp.s[ ,1], x=pp.s[,-1], method= m, tuneLength= 15, trControl = control, verbose=TRUE)
-  stat <- sm_Stats(tune.pls$pred$pred, tune.pls$pred$obs, plot = F)
+  control  <- caret::trainControl(method = "cv", number=10, savePredictions = TRUE, verboseIter = TRUE, allowParallel = T)
+  tune.pls <- caret::train(y=pp.s[ ,1], x=pp.s[,-1], method= m, tuneLength= 15, trControl = control, verbose=F)
+  predict(tune.pls, newdata = data.frame(pp.s[ ,1]))
+  stat <- sm_Stats(tune.pls$pred$pred , tune.pls$pred$obs, plot = F)
   rownames(stat) <- paste0(p, "-", m)
   print(stat)
   
 }
 model.pp
 stopCluster(cl)
+
+subset(model.pp, R2 == max(R2))
+
+temp  <- strsplit(dates, "-")
+
+
+
+
+###########################################################################
+preprocessing <- 
+modelling <- 
+ 
+# option 1  
+for (p in preprocessing) { # 9 preprocessing
+  for (m in modelling) { # 2 models
+    pp.s <- pp(spectra = spectra, option = preprocessing)
+     if (preprocessing=="pls"){
+      mod <- pls::plsr(y=pp.s[ ,1], x=pp.s[,-1], data=pp.s, ncomp = selected.pls.c, method="simpls", validation="none") 
+    } else { 
+        if (preprocessing=="cubist")
+       
+    }
+  } #close m
+}#close p
+
+
+
+
+control  <- caret::trainControl(method = "cv", savePredictions = TRUE, verboseIter = TRUE, number=2, allowParallel = FALSE)
+tune.pls <- caret::train(y=pp.s[ ,1], x=pp.s[,-1], method= m, tuneLength= 5, trControl = control, verbose=TRUE)
+
+
 
 
 
