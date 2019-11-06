@@ -21,7 +21,9 @@ gssl.path <- lapply(filePaths[3], drop_read_csv, stringsAsFactors = FALSE)
 gssl.path <- do.call(rbind, gssl.path)
 gssl2     <- cbind(variable=gssl.path$C, gssl.path[ ,c(26:2176)])
 gssl      <- data.frame(cbind(variable=gssl.test$C, gssl.test[,c(26:length(gssl.test))])) #spectra
-
+info      <- read.csv("C:/Users/280240B/Downloads/spectra/BESB-info.csv")
+spectra   <- read.csv("C:/Users/280240B/Downloads/spectra/BESB-spectral.csv")
+global    <- data.frame(cbind(variable=info$C, spectra[,c(5:2155)]))
 ##############################################################################
 #################### gssl + 20 imported - spiking papers by Guerrero et al.
 imported.gssl <- rbind(imported, gssl)
@@ -50,7 +52,8 @@ rslocal.local <- rbind( local20, rslocal)
 rslocal.path <- lapply(filePaths[1], drop_read_csv, stringsAsFactors = FALSE)
 rslocal.path <- do.call(rbind, rslocal.path)
 rslocal      <- cbind(variable=rslocal.path$variable, rslocal.path[ ,c(2:2152)])
-
+rslocal.data      <- read.csv("C:/Users/280240B/Downloads/spectra/rslocal.csv")
+rslocal.spectra   <- cbind(variable=rslocal.data$C, rslocal.data[ ,c(28:2178)])
 ##############################################################################
 
 #BESB.info <- read.csv("C:/Users/280240B/Downloads/spectra/BESB-info.csv")
