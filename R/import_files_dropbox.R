@@ -22,8 +22,8 @@ gssl.path <- do.call(rbind, gssl.path)
 gssl2     <- cbind(variable=gssl.path$C, gssl.path[ ,c(26:2176)])
 gssl      <- data.frame(cbind(variable=gssl.test$C, gssl.test[,c(26:length(gssl.test))])) #spectra
 info      <- read.csv("C:/Users/280240B/Downloads/spectra/BESB-info.csv")
-spectra   <- read.csv("C:/Users/280240B/Downloads/spectra/BESB-spectral.csv")
-global    <- data.frame(cbind(variable=info$C, spectra[,c(5:2155)]))
+spectra   <- read.csv("C:/Users/280240B/Downloads/gssl-test.csv")
+global    <- data.frame(cbind(variable=spectra$C, spectra[,c(26:length(spectra))]))
 ##############################################################################
 #################### gssl + 20 imported - spiking papers by Guerrero et al.
 imported.gssl <- rbind(imported, gssl)
